@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-title" content="TFP Nutrition">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <title>TFP Nutrition</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .logo-top { color: #972573; font-size: 12px; font-weight: 700; letter-spacing: 3px; }
+    .logo-bot { font-family: Georgia, serif; font-size: 28px; font-style: italic; margin-top: -2px; }
+    .open-btn {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 16px 40px;
+      background: #D900BC;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+    .open-btn:active { background: #972573; }
+    .hint {
+      margin-top: 24px;
+      color: #888;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 280px;
+    }
+    .hint strong { color: #bbb; }
+    .error { color: #FF5722; margin-top: 20px; display: none; text-align: center; }
+    .debug { color: #555; font-size: 10px; margin-top: 16px; word-break: break-all; max-width: 320px; }
+  </style>
+</head>
+<body>
+  <div id="landing" style="display:none;">
+    <div class="logo-top">THE FIT</div>
+    <div class="logo-bot">Physician</div>
+    <a class="open-btn" id="openBtn">Open Nutrition Tracker</a>
+    <div class="hint">
+      <strong>First time?</strong> Tap the share button <span style="font-size:16px;">&#x1F4E4;</span> and "Add to Home Screen" for quick access with the app icon.
+    </div>
+  </div>
+
+  <div class="error" id="error">
+    <p>Could not find your tracker link.</p>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Contact your coach for the correct link.</p>
+    <p class="debug" id="debug"></p>
+  </div>
+
+  <script>
+    // Base64url decode
+    function b64urlDecode(str) {
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) str += '=';
+      return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+    }
+
+    (function() {
+      var targetUrl = null;
+      var debugInfo = 'URL: ' + window.location.href;
+
+      // Check query param: ?t=BASE64URL (first visit from link)
+      var params = new URLSearchParams(window.location.search);
+      var encoded = params.get('t');
+
+      if (encoded && encoded.length > 10) {
+        try {
+          var decoded = b64urlDecode(encoded);
+          if (decoded && decoded.indexOf('https://') === 0) {
+            targetUrl = decoded;
+            try { localStorage.setItem('tfp_tracker_url', targetUrl); } catch(e) {}
+          }
+        } catch(e) { debugInfo += ' | decode error: ' + e.message; }
+      }
+
+      // If no query param, try localStorage
+      if (!targetUrl) {
+        try {
+          targetUrl = localStorage.getItem('tfp_tracker_url');
+          debugInfo += ' | ls: ' + (targetUrl ? 'found' : 'empty');
+        } catch(e) { debugInfo += ' | ls error: ' + e.message; }
+      }
+
+      if (targetUrl) {
+        document.getElementById('landing').style.display = 'block';
+        document.getElementById('openBtn').href = targetUrl;
+      } else {
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('debug').textContent = debugInfo;
+      }
+    })();
+  </script>
+</body>
+</html>
