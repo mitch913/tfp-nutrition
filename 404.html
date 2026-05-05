@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-title" content="TFP Nutrition">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" sizes="180x180" href="/tfp-nutrition/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/tfp-nutrition/icon-192.png">
+  <link rel="manifest" href="/tfp-nutrition/manifest.json">
+  <title>TFP Nutrition</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .logo-top { color: #972573; font-size: 12px; font-weight: 700; letter-spacing: 3px; }
+    .logo-bot { font-family: Georgia, serif; font-size: 28px; font-style: italic; margin-top: -2px; }
+    .loading-text { color: #888; font-size: 14px; margin-top: 20px; }
+    .spinner {
+      width: 24px; height: 24px;
+      border: 3px solid #333; border-top: 3px solid #D900BC;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 16px auto 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error { color: #FF5722; margin-top: 20px; display: none; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="logo-top">THE FIT</div>
+    <div class="logo-bot">Physician</div>
+    <div class="loading-text">Opening your tracker...</div>
+    <div class="spinner"></div>
+  </div>
+
+  <div class="error" id="error">
+    <p>Could not find your tracker link.</p>
+    <p style="margin-top:8px;font-size:13px;color:#888;">Contact your coach for the correct link.</p>
+  </div>
+
+  <script>
+    (function() {
+      // Extract deployment ID from URL path
+      // Link format: mitch913.github.io/tfp-nutrition/DEPLOYMENT_ID
+      var path = window.location.pathname;
+      var parts = path.replace(/\/$/, '').split('/');
+      // parts = ['', 'tfp-nutrition', 'DEPLOYMENT_ID']
+      var deploymentId = parts.length >= 3 ? parts[parts.length - 1] : null;
+
+      if (deploymentId && deploymentId.length > 10) {
+        // Build the Apps Script URL
+        // Google Workspace URL pattern for thefitphysician.com
+        var targetUrl = 'https://script.google.com/a/thefitphysician.com/macros/s/' + deploymentId + '/exec';
+
+        setTimeout(function() {
+          window.location.replace(targetUrl);
+        }, 600);
+      } else {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+      }
+    })();
+  </script>
+</body>
+</html>
